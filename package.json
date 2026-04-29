@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/app/server.ts",
+    "chat": "bun run src/app/chat-cli.ts",
     "test": "bun test"
   }
 }

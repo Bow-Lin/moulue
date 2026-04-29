@@ -33,3 +33,10 @@ Establish a clean repository foundation for a **single-character Three Kingdoms 
 - mutable project state lives in `CURRENT.md`
 - implementation details are disclosed gradually through first-level docs
 - Zhuge Liang is the reference character for early product and prompt choices
+
+## Smoke Test
+
+- start the local server with `bun run dev`
+- call `POST /chat` without `sessionId`
+- reuse the returned `sessionId` in a second `POST /chat`
+- confirm non-empty replies and continued session history

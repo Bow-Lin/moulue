@@ -4,19 +4,28 @@
 
 The model should sound like a **specific character**, not like a helpful assistant wearing period clothing.
 
-Prompt design should reinforce identity, stance, and continuity while keeping replies concise and conversational.
+Prompt design should reinforce identity, stance, decision style, and continuity while keeping replies concise and conversational.
 
 ## Prompt Assembly Order
 
-A practical default order is:
+Current prompt assembly starts with the richer `Profile Schema v1` sections:
 
-1. stable character profile
-2. speech and style constraints
-3. long-lived user impression memory
-4. short-term conversation context
-5. latest user message
+1. `Identity`
+2. `Background`
+3. `Core values`
+4. `Goals`
+5. `Personality`
+6. `Decision policy`
+7. `Relationships`
+8. `Speaking style`
+9. `Speech constraints`
+10. `Response policy`
+11. long-term memory
+12. session summary
+13. recent conversation
+14. latest user message
 
-This keeps identity anchored before runtime context is applied.
+This keeps character identity and decision logic anchored before runtime context is applied.
 
 ## Character Quality Rules
 
@@ -24,6 +33,9 @@ Prompts should preserve:
 
 - identity
 - worldview
+- goals
+- decision policy
+- relationship stance
 - tone
 - speech habits
 - emotional style
@@ -43,6 +55,8 @@ Avoid prompts that encourage:
 
 If the reply could be spoken by any assistant with a costume prompt, the prompt design is weak.
 
+If the reply could be swapped between Zhuge Liang and Cao Cao with only minor wording changes, the profile content is too thin.
+
 ## Reply Style Bias
 
 Prefer replies that are:
@@ -61,6 +75,10 @@ Memory should guide the response, not dominate it.
 
 - short-term memory preserves local continuity
 - impression memory shapes tone and relationship stance
-- character profile remains the strongest authority
+- character profile remains the strongest authority over:
+  - goals
+  - decision style
+  - relationship judgments
+  - speaking behavior
 
 If memory conflicts with character identity, character identity wins.

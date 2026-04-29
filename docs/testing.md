@@ -9,6 +9,7 @@ Testing should protect the stable, deterministic parts of the chat runtime while
 Write deterministic tests first for:
 
 - character profile loading
+- profile schema validation
 - prompt context assembly
 - short-term memory windowing behavior
 - impression memory read and write logic
@@ -23,6 +24,7 @@ Examples:
 
 - prompt snapshot tests
 - smoke tests that verify reply generation paths run
+- profile-specific prompt section assertions
 - targeted qualitative review for in-character behavior
 
 Do not rely on brittle exact-string assertions for rich model output.
@@ -44,6 +46,8 @@ Prefer:
 - explicit fixtures
 - isolated persistence tests
 - stable tests around non-LLM logic
+- validation tests for profile loading and agent/profile mismatch
+- prompt-section assertions for decision policy and relationships
 
 Avoid:
 

@@ -1,17 +1,20 @@
 import { toAgentProfile } from "../profile";
 import type { AgentProfile } from "../../types/agent";
 
-const profileFiles: Record<string, URL> = {
-  zhuge_liang: new URL("./zhuge_liang.yaml", import.meta.url),
-};
+const AGENT_ID_PATTERN = /^[a-z0-9_-]+$/;
 
 export const loadProfile = async (agentId: string): Promise<AgentProfile> => {
-  const profileFileUrl = profileFiles[agentId];
+  if (!AGENT_ID_PATTERN.test(agentId)) {
+    throw new Error(`Invalid agent profile id: ${agentId}`);
+  }
 
-  if (!profileFileUrl) {
+  const profileFileUrl = new URL(`./${agentId}.yaml`, import.meta.url);
+  const profileFile = Bun.file(profileFileUrl);
+
+  if (!(await profileFile.exists())) {
     throw new Error(`Unknown agent profile: ${agentId}`);
   }
 
-  const rawProfile = Bun.YAML.parse(await Bun.file(profileFileUrl).text()) as Record<string, unknown>;
-  return toAgentProfile(rawProfile);
+  const rawProfile = Bun.YAML.parse(await profileFile.text()) as Record<string, unknown>;
+  return toAgentProfile(rawProfile, agentId);
 };

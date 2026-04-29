@@ -2,85 +2,189 @@
 
 ## Goal
 
-Build a small, explicit runtime for **single-character roleplay chat**.
+Build a small, explicit runtime for a **single-character Three Kingdoms chat experience**.
 
-The architecture should optimize for clarity, easy iteration, and clean separation between character identity, short-term context, and persistent user impressions.
+The current `v0.1` scope is a local-first, memory-aware character runtime centered on one believable historical character at a time.
 
-## Core Components
+## Design Principles
+
+- profile-driven character identity
+- rich character profiles over shallow style prompts
+- persistent sessions and local storage first
+- layered memory instead of retrieval-heavy infrastructure
+- provider-agnostic model wiring
+- debuggable prompt assembly
+- small runtime over general framework
+
+## System Overview
+
+```mermaid
+flowchart TD
+    User[User] --> Entry[HTTP /chat or CLI]
+    Entry --> Agent[CharacterChatAgent]
+    Agent --> Profile[Profile Loader]
+    Agent --> Store[SQLiteStore]
+    Agent --> MemoryRead[MemoryManager]
+    Agent --> Provider[ChatModel Provider]
+    Provider --> Agent
+    Agent --> Summary[SessionSummarizer]
+    Agent --> Extractor[MemoryExtractor]
+    Agent --> Apply[MemoryService]
+    Summary --> Store
+    Extractor --> Apply
+    Apply --> Store
+    Store --> Entry
+```
+
+Current entry points:
+
+- HTTP server via `bun run dev`
+- local CLI via `bun run chat`
+
+Current persistence is SQLite-backed and stores:
+
+- sessions
+- messages
+- long-term memory items
+
+## Core Modules
+
+### `CharacterChatAgent`
+
+Owns one chat turn for one character. It loads context, assembles the prompt, calls the provider, persists the turn, triggers summary update, and triggers long-term memory extraction.
 
 ### `AgentProfile`
 
-Defines stable character identity. This should include fields such as:
+Defines stable character identity from local YAML configuration using `Profile Schema v1`.
 
-- `agent_id`
-- `name`
-- `faction`
-- `background_summary`
+Current profile sections include:
+
+- `identity`
+- `background`
 - `core_values`
-- `style_rules`
+- `goals`
+- `personality`
+- `decision_policy`
+- `relationships`
+- `speaking_style`
 - `speech_constraints`
+- `response_policy`
 
-This data is configuration, not runtime memory.
-
-### `BaseChatAgent`
-
-Owns reply generation for one character. It should:
-
-- load the character profile
-- assemble prompt context
-- request relevant memory
-- produce a reply in character
+Profile data is immutable runtime input, not generated memory.
 
 ### `MemoryManager`
 
-Coordinates memory reads and writes across:
+Loads reply-time memory context:
 
-- recent conversation context
-- long-lived user impressions
+- long-term memory items
+- session summary
 
-It should not own immutable character identity.
+### `SessionSummarizer`
 
-### `ConversationStore`
+Updates the medium-term session summary when the session grows beyond the recent-message window.
 
-Persists sessions and message history. It should provide clear access by:
+### `MemoryExtractor`
 
-- `user_id`
-- `agent_id`
-- `session_id`
+Runs after a successful chat turn and proposes durable memory candidates from the recent conversation.
+
+### `MemoryService`
+
+Applies extracted candidates with the current lightweight policy:
+
+- insert
+- update
+- skip duplicate
+- discard low confidence
+
+### `SQLiteStore`
+
+Provides persistence for:
+
+- sessions
+- messages
+- session summaries
+- long-term memory items
 
 ### `AgentFactory`
 
-Creates configured chat agents without introducing unnecessary subclass complexity.
+Builds a configured `CharacterChatAgent` with the selected profile and provider.
 
-## Data Flow
+### Provider Layer
 
-The intended flow is:
+Current providers:
 
-1. load the selected `AgentProfile`
-2. load recent conversation context for the session
-3. load long-lived impression memory for the user-character pair
-4. assemble the prompt in a fixed, readable order
-5. generate the in-character reply
-6. persist the new message pair
-7. optionally update impression memory when the interaction merits it
+- `fake`
+- `glm`
+- `bailian`
 
-## Separation Rules
+All current real providers are wired through the OpenAI-compatible chat client.
 
-Keep these concerns distinct:
+## Request Lifecycle
 
-- character profile
-- short-term memory
-- impression memory
-- persistence layer
-- LLM client
+For one `POST /chat` request:
 
-Avoid a single omniscient object that hides all of this behind vague helpers.
+1. Parse and validate the request body.
+2. Build the selected character agent.
+3. Resolve or create the session.
+4. Load and validate the schema v1 agent profile.
+5. Load long-term memory and session summary.
+6. Load recent messages for the session.
+7. Assemble the system prompt from profile sections first, then runtime memory context.
+8. Call the selected provider to generate the reply.
+9. Persist the user message and assistant reply.
+10. Update the session summary if the threshold is exceeded.
+11. Run memory extraction for long-term memory candidates.
+12. Apply extracted candidates to the SQLite memory store.
+13. Return the reply and optional debug trace.
 
-## Storage Defaults
+## Prompt Assembly Order
 
-Use simple local storage first:
+Current prompt assembly order is:
 
-- SQLite for sessions, messages, and memory records
-- JSON or YAML for profiles and prompt configuration
+1. character profile sections:
+   - identity
+   - background
+   - core values
+   - goals
+   - personality
+   - decision policy
+   - relationships
+   - speaking style
+   - speech constraints
+   - response policy
+2. long-term memory
+3. session summary
+4. recent messages
 
-Avoid heavier infrastructure until concrete product pressure exists.
+This ordering keeps richer character identity first, then durable user context, then medium-term session context, then turn-local continuity.
+
+## Current Scope
+
+Current implemented scope:
+
+- single-character chat runtime
+- Zhuge Liang and Cao Cao as current reference characters
+- persistent sessions and message history
+- layered memory:
+  - long-term SQLite memory
+  - session summary
+  - recent messages
+- automatic long-term memory extraction
+- optional debug trace for chat requests
+- local HTTP server and local CLI
+- provider switching via `.env.local`
+
+## Out Of Scope
+
+Not currently implemented and intentionally out of scope for `v0.1`:
+
+- multi-agent collaboration
+- world-state simulation
+- quest or scenario engines
+- frontend UI
+- vector search
+- BM25 retrieval
+- QMD integration
+- distributed infrastructure
+- plugin ecosystems
+- generic orchestration frameworks
