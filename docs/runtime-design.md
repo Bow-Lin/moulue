@@ -134,3 +134,7 @@ Supporting modules should stay explicit:
 - `MemoryService` for candidate application
 - `SQLiteStore` for persistence
 - `AgentFactory` for construction and provider selection
+
+## Planned Web Surface Rule
+
+The planned local web UI for `v0.3` must call the HTTP API and must not duplicate `CharacterChatAgent` orchestration logic in the browser.

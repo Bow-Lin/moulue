@@ -195,6 +195,17 @@ Supported memory types:
 }
 ```
 
+## Planned `v0.3` Additions
+
+The next planned read-only profile endpoints are:
+
+- `GET /profiles`
+- `GET /profiles/:agentId`
+
+Their intended purpose is to support a minimal local web UI.
+
+They should return safe profile summary data for display and selection, not the assembled runtime prompt.
+
 ## Error Responses
 
 Current route-level errors:

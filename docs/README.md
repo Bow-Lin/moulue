@@ -11,6 +11,9 @@ Read only the documents relevant to the task at hand.
 - `memory.md`: short-term memory, impression memory, and persistence rules
 - `prompting.md`: prompt assembly rules and roleplay quality constraints
 - `testing.md`: testing priorities and acceptance strategy
+- `plans/`: active or upcoming design and implementation plans
+- `archive/plans/`: completed historical plans kept for reference
+- `releases/`: milestone boundaries and scoped release notes
 - `characters/zhuge-liang.md`: the reference character definition
 
 ## Usage Rule

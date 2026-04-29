@@ -30,6 +30,8 @@ Do not use this file to track:
 
 Put mutable project status in `CURRENT.md`.
 
+Update `CURRENT.md` after any implementation change that affects completed state, active priorities, known limitations, or next steps.
+
 ---
 
 ## Product Direction
@@ -187,18 +189,113 @@ Read these files as needed:
 
 ---
 
-## What AI Coding Agents Should Do
+## Agent Workflow
 
-When working in this repository:
+For every coding task:
 
-1. read `AGENTS.md` first
-2. read `CURRENT.md` for active state
-3. read only the relevant topic docs for the task
-4. inspect existing files before proposing changes
-5. choose the smallest valid implementation
-6. preserve the chat-first architecture direction
-7. add or run tests when practical
-8. summarize changes clearly
+1. read `AGENTS.md`
+2. read `CURRENT.md`
+3. identify the smallest relevant docs under `docs/`
+4. inspect the existing implementation before editing
+5. state the intended change briefly before modifying files
+6. make the smallest coherent change
+7. run targeted tests, or explain why tests were not run
+8. update `CURRENT.md` if completed state, active priorities, known limitations, or next steps changed
+9. summarize:
+   - files changed
+   - behavior changed
+   - tests run
+   - follow-up risks
+
+---
+
+## Decision Policy
+
+When uncertain, prefer inspecting existing code and documentation over asking broad clarification questions.
+
+Ask the user only when:
+
+- the product behavior is genuinely ambiguous
+- there are multiple plausible user-visible outcomes
+- a schema or storage migration could affect existing data
+- the change would expand project scope
+
+Do not ask for confirmation before small implementation-local decisions that can be validated by tests, existing patterns, or current code structure.
+
+---
+
+## Chat Quality Acceptance
+
+A change is good only if it preserves or improves:
+
+- the character does not sound like a generic assistant
+- the reply reflects the configured character identity
+- short-term context from the current session is used correctly
+- long-lived user impressions are used lightly and naturally
+- the character does not over-explain system behavior
+- the implementation remains easy to reason about
+
+For character-facing changes, prefer adding or updating a small conversation example or test case.
+
+---
+
+## Profile Schema Rule
+
+Character behavior should be expressed through profile schema and prompt assembly, not hard-coded conditionals.
+
+Runtime code should remain character-agnostic unless there is a documented product reason.
+
+Do not add code like:
+
+- `if agentId === "zhuge_liang"`
+- character-specific branches in runtime logic
+- one-off prompt strings inside business logic
+
+If a character needs different behavior, first consider whether the profile schema should express it.
+
+---
+
+## Memory Rule
+
+Memory exists to improve conversational continuity, not to model the entire world.
+
+Short-term memory should come from recent conversation turns.
+
+Long-lived memory should store only stable, useful user impressions, such as:
+
+- preferred form of address
+- recurring relationship with the character
+- durable interaction preferences
+- important facts repeatedly referenced by the user
+
+Do not store:
+
+- every message
+- transient emotions
+- one-off preferences
+- inferred sensitive information
+- detailed world state unless explicitly required by the product
+
+---
+
+## Testing Bias
+
+Prefer tests around deterministic behavior:
+
+- profile loading
+- prompt section assembly
+- memory read/write/update
+- session continuation
+- API happy path
+- unknown agent and invalid session handling
+
+Do not try to test whether the model is "smart".
+
+For LLM-facing behavior, prefer prompt assembly tests, structured output checks, and a few manual smoke conversations.
+
+---
+
+## Implementation Guardrails
 
 Do not:
 
@@ -207,6 +304,7 @@ Do not:
 - implement speculative future systems
 - silently change storage assumptions or schema
 - add features that mainly expand scope instead of improving chat quality
+- hard-code character-specific behavior in runtime logic
 
 Before implementing a feature, ask:
 
@@ -234,4 +332,4 @@ Use this rule to validate early chat quality, not to permanently bind the genera
 
 As more characters are added, evolve this section toward shared cross-character quality standards.
 
-If not, the change is probably premature or mis-scoped for the current stage.
+If a proposed change does not improve Zhuge Liang's believability, continuity, or implementation clarity, treat it as premature for the current stage.

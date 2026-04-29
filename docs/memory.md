@@ -150,6 +150,8 @@ Current `/chat` debug output is split into:
 
 This trace exists to make memory behavior observable instead of opaque.
 
+The same debug trace may be surfaced by the CLI or by a planned local web UI for development and demonstration.
+
 ## Limitations
 
 Current limitations:

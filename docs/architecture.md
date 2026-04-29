@@ -174,6 +174,21 @@ Current implemented scope:
 - local HTTP server and local CLI
 - provider switching via `.env.local`
 
+## Planned `v0.3` Web UI Boundary
+
+The next planned surface is a local-first web UI for demonstration and debugging.
+
+It should stay thin:
+
+- serve as a visual layer over the existing HTTP API
+- show profile summary, chat session, and debug trace
+- avoid duplicating `CharacterChatAgent` logic in the browser
+
+Planned additions around this UI:
+
+- `GET /profiles`
+- `GET /profiles/:agentId`
+
 ## Out Of Scope
 
 Not currently implemented and intentionally out of scope for `v0.1`:
